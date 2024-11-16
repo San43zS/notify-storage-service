@@ -21,8 +21,6 @@ func New(dial *amqp.Channel) Producer {
 }
 
 func (p producer) Produce(ctx context.Context, msg []byte) error {
-	f := string(msg)
-
 	err := p.dial.PublishWithContext(
 		ctx,
 		config.ProducerExchangeName, // exchange
@@ -31,7 +29,7 @@ func (p producer) Produce(ctx context.Context, msg []byte) error {
 		false,                       // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(f),
+			Body:        msg,
 		},
 	)
 

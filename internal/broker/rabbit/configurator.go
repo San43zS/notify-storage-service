@@ -2,11 +2,14 @@ package rabbit
 
 import (
 	"Notify-storage-service/internal/broker/rabbit/config"
+	"Notify-storage-service/internal/server/launcher/rabbit"
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func ConfigureUConsumer(ch *amqp.Channel) error {
+func ConfigureConsumer(ch *amqp.Channel, c rabbit.Consumer) error {
+	qn := c.QueueName
+	rk := c.RoutingKey
 	err := ch.ExchangeDeclare(
 		config.ConsumerExchangeName, // name
 		amqp.ExchangeDirect,         // type
@@ -22,12 +25,12 @@ func ConfigureUConsumer(ch *amqp.Channel) error {
 	}
 
 	q, err := ch.QueueDeclare(
-		config.UConsumerQueueName, // name
-		false,                     // durable
-		false,                     // delete when unused
-		false,                     // exclusive
-		false,                     // no-wait
-		nil,                       // arguments
+		qn,    // name
+		false, // durable
+		false, // delete when unused
+		false, // exclusive
+		false, // no-wait
+		nil,   // arguments
 	)
 
 	if err != nil {
@@ -36,48 +39,7 @@ func ConfigureUConsumer(ch *amqp.Channel) error {
 
 	err = ch.QueueBind(
 		q.Name,                      // name
-		config.UConsumerRoutingKey,  // key
-		config.ConsumerExchangeName, // exchange
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func ConfigureHConsumer(ch *amqp.Channel) error {
-	err := ch.ExchangeDeclare(
-		config.ConsumerExchangeName, // name
-		amqp.ExchangeDirect,         // type
-		true,                        // durable
-		false,                       // auto-deleted
-		false,                       // internal
-		false,                       // no-wait
-		nil,                         // arguments
-	)
-
-	if err != nil {
-		return err
-	}
-
-	q, err := ch.QueueDeclare(
-		config.UConsumerQueueName, // name
-		false,                     // durable
-		false,                     // delete when unused
-		false,                     // exclusive
-		false,                     // no-wait
-		nil,                       // arguments
-	)
-
-	if err != nil {
-		return err
-	}
-
-	err = ch.QueueBind(
-		q.Name,                      // name
-		config.HConsumerRoutingKey,  // key
+		rk,                          // key
 		config.ConsumerExchangeName, // exchange
 		false,
 		nil,

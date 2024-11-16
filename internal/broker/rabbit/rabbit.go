@@ -4,6 +4,7 @@ import (
 	"Notify-storage-service/internal/broker/rabbit/config"
 	"Notify-storage-service/internal/broker/rabbit/consumer"
 	"Notify-storage-service/internal/broker/rabbit/producer"
+	"Notify-storage-service/internal/server/launcher/rabbit"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -13,7 +14,8 @@ type Service interface {
 }
 
 type service struct {
-	dial *amqp.Channel
+	dial   *amqp.Channel
+	Config rabbit.Config
 }
 
 func New() (Service, error) {
@@ -30,19 +32,14 @@ func New() (Service, error) {
 		conn.Close()
 		return nil, err
 	}
+	newCfg := rabbit.NewCfg()
+	for _, c := range newCfg.Consumers {
+		if err := ConfigureConsumer(ch, c); err != nil {
+			ch.Close()
+			conn.Close()
 
-	if err := ConfigureUConsumer(ch); err != nil {
-		ch.Close()
-		conn.Close()
-
-		return nil, err
-	}
-
-	if err := ConfigureHConsumer(ch); err != nil {
-		ch.Close()
-		conn.Close()
-
-		return nil, err
+			return nil, err
+		}
 	}
 
 	if err := ConfigureProducer(ch); err != nil {
@@ -52,7 +49,10 @@ func New() (Service, error) {
 		return nil, err
 	}
 
-	srv := &service{dial: ch}
+	srv := &service{
+		dial:   ch,
+		Config: newCfg,
+	}
 
 	return srv, nil
 }

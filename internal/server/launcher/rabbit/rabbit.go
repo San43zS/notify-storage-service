@@ -6,60 +6,71 @@ import (
 	"Notify-storage-service/pkg/msghandler"
 	"context"
 	"fmt"
+	"github.com/op/go-logging"
 	"golang.org/x/sync/errgroup"
 	"sync"
 )
 
+var log = logging.MustGetLogger("rabbit")
+
 type server struct {
 	handler msghandler.MsgResolver
 	broker  rabbit.Service
+
+	config Config
 }
 
 func New(broker rabbit.Service, handler msghandler.MsgResolver) launcher.Server {
 	return &server{
 		handler: handler,
 		broker:  broker,
+
+		config: NewCfg(),
 	}
 }
 
 func (s server) Serve(ctx context.Context) error {
 	var wg sync.WaitGroup
-	wg.Add(1)
+	wg.Add(len(s.config.Consumers))
 
 	gr, grCtx := errgroup.WithContext(ctx)
 
-	gr.Go(func() error {
-		defer wg.Done()
-		return s.serve(grCtx)
-	})
+	for _, c := range s.config.Consumers {
+		c := c
+
+		gr.Go(func() error {
+			defer wg.Done()
+			return s.serve(grCtx, c)
+		})
+	}
 
 	wg.Wait()
 
 	return nil
 }
 
-func (s server) serve(ctx context.Context) error {
+func (s server) serve(ctx context.Context, consumer Consumer) error {
 	c := s.broker.Consumer()
 
+	log.Infof("starting rabbit consumer: %s", consumer.QueueName)
 	for {
 		if err := ctx.Err(); err != nil {
+			log.Infof("rabbit listener stopped error: %v", err)
 			return fmt.Errorf("rabbit listener stopped error: %v", err)
 		}
 
-		_, err := c.UConsume(ctx)
+		m, err := c.Consume(ctx, consumer.QueueName)
 		if err != nil {
-			//fmt.Println(m)
-			// TODO: add logger
-			//log.Errorf("failed to consume message error: %v", err)
+			log.Infof("rabbit listener stopped error: %v", err)
 			continue
 		}
-		//
-		//go func() {
-		//	_, err := s.handler.ServeMSG(ctx, m)
-		//	if err != nil {
-		//		fmt.Errorf("failed to handle message: %v", err)
-		//		return
-		//	}
-		//}()
+
+		go func() {
+			err := s.handler.ServeMSG(ctx, m)
+			if err != nil {
+				log.Infof("failed to handle message: %v", err)
+				return
+			}
+		}()
 	}
 }

@@ -17,12 +17,8 @@ func New(storage notification.StorageNotification) notification.StorageNotificat
 	}
 }
 
-func (s service) Add(ctx context.Context, notification notify.Notification) error {
-	return s.storage.Add(ctx, notification)
-}
-
-func (s service) Get(ctx context.Context, id int) ([]notify.Notification, error) {
-	return s.storage.Get(ctx, id)
+func (s service) GetCurrent(ctx context.Context, id int) ([]notify.Notification, error) {
+	return s.storage.GetCurrent(ctx, id)
 }
 
 func (s service) GetById(ctx context.Context, Id int) (notify.Notification, error) {

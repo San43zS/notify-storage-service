@@ -15,8 +15,7 @@ type BrokerNotification interface {
 }
 
 type StorageNotification interface {
-	Add(ctx context.Context, notification notification.Notification) error
-	Get(ctx context.Context, id int) ([]notification.Notification, error)
+	GetCurrent(ctx context.Context, id int) ([]notification.Notification, error)
 	GetById(ctx context.Context, id int) (notification.Notification, error)
 	Delete(ctx context.Context, ids []int) error
 }

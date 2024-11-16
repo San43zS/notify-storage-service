@@ -3,13 +3,11 @@ package config
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"time"
 )
 
 const (
 	ProducerQueueName    = "purpleQueue"
 	ProducerExchangeName = "test"
-	ContextTimeOut       = 5 * time.Second
 )
 
 const (

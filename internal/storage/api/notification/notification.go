@@ -7,7 +7,8 @@ import (
 
 type Notification interface {
 	Add(ctx context.Context, notification notification.Notification) error
-	Get(ctx context.Context, id int) ([]notification.Notification, error)
+	GetOld(ctx context.Context, userID int) ([]notification.Notification, error)
+	GetCurrent(ctx context.Context, userID int) ([]notification.Notification, error)
 	GetById(ctx context.Context, id int) (notification.Notification, error)
-	Delete(ctx context.Context, ids []int) error
+	Delete(ctx context.Context, userID int, ids []int) error
 }

@@ -5,14 +5,16 @@ import (
 	"Notify-storage-service/internal/server/launcher"
 	"Notify-storage-service/internal/server/launcher/rabbit"
 	"context"
+	"github.com/op/go-logging"
 	"golang.org/x/sync/errgroup"
-	"log"
 	"sync"
 
 	"Notify-storage-service/internal/broker"
 
 	"Notify-storage-service/internal/service"
 )
+
+var log = logging.MustGetLogger("server")
 
 type server struct {
 	servers []launcher.Server
@@ -39,10 +41,10 @@ func (s *server) Serve(ctx context.Context) error {
 	var err error
 
 	if err = gr.Wait(); err != nil {
-		log.Println("server stopped with error: ", err)
+		log.Criticalf("server stopped with error: %v", err)
 	}
 
-	log.Println("app: shutting down the server")
+	log.Infof("app: shutting down the server")
 
 	return err
 }

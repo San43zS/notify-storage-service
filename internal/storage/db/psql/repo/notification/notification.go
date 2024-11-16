@@ -38,15 +38,15 @@ func (r repository) Add(ctx context.Context, notification notification2.Notifica
 	return nil
 }
 
-func (r repository) Get(ctx context.Context, id int) ([]notification2.Notification, error) {
-	query := `SELECT user_id, notification, created_at FROM notify WHERE user_id = $1`
+func (r repository) GetOld(ctx context.Context, userID int) ([]notification2.Notification, error) {
+	query := `SELECT user_id, notification, created_at FROM notify WHERE user_id = $1 AND status = $2`
 
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		return []notification2.Notification{}, fmt.Errorf("failed to prepare query: %w", err)
 	}
 
-	rows, err := stmt.QueryContext(ctx, id)
+	rows, err := stmt.QueryContext(ctx, userID, OldStatus)
 	if err != nil {
 		return []notification2.Notification{}, fmt.Errorf("failed to execute query: %w", err)
 	}
@@ -69,6 +69,49 @@ func (r repository) Get(ctx context.Context, id int) ([]notification2.Notificati
 	return notifications, nil
 }
 
-func (r repository) Delete(ctx context.Context, ids []int) error {
+func (r repository) GetCurrent(ctx context.Context, userID int) ([]notification2.Notification, error) {
+	query := `SELECT user_id, notification, created_at, expired_at FROM notify WHERE user_id = $1 AND status = $2`
+
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return []notification2.Notification{}, fmt.Errorf("failed to prepare query: %w", err)
+	}
+
+	rows, err := stmt.QueryContext(ctx, userID, CurrentStatus)
+	if err != nil {
+		return []notification2.Notification{}, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer rows.Close()
+
+	var notifications []notification2.Notification
+	for rows.Next() {
+		var existing notification2.Notification
+		err := rows.Scan(
+			&existing.UserId,
+			&existing.Data,
+			&existing.CreatedAt,
+			&existing.ExpiredAt,
+		)
+		if err != nil {
+			return []notification2.Notification{}, fmt.Errorf("failed to scan row: %w", err)
+		}
+		notifications = append(notifications, existing)
+	}
+
+	return notifications, nil
+}
+
+func (r repository) Delete(ctx context.Context, userID int, ids []int) error {
+	query := `DELETE FROM notify WHERE user_id = $1 AND id IN (SELECT unnest($2))`
+
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare query: %w", err)
+	}
+
+	_, err = stmt.ExecContext(ctx, userID, ids)
+	if err != nil {
+		return fmt.Errorf("failed to exec query: %w", err)
+	}
 	return nil
 }
