@@ -8,12 +8,14 @@ import (
 )
 
 type Service interface {
-	Notification() notification.BrokerNotification
+	BNotification() notification.BrokerNotification
+	SNotification() notification.StorageNotification
 }
 
 type service struct {
 	storage      storage.Storage
 	notification notification.BrokerNotification
+	store        notification.StorageNotification
 }
 
 func New(repos storage.Storage, broker broker.Broker) Service {
@@ -23,6 +25,10 @@ func New(repos storage.Storage, broker broker.Broker) Service {
 	}
 }
 
-func (s *service) Notification() notification.BrokerNotification {
+func (s *service) BNotification() notification.BrokerNotification {
 	return s.notification
+}
+
+func (s *service) SNotification() notification.StorageNotification {
+	return s.store
 }

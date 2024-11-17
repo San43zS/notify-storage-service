@@ -4,7 +4,7 @@ import (
 	"Notify-storage-service/internal/storage"
 	"Notify-storage-service/internal/storage/api/notification"
 	"Notify-storage-service/internal/storage/config"
-	notification2 "Notify-storage-service/internal/storage/db/psql/repo/notification"
+	notify "Notify-storage-service/internal/storage/db/psql/notification"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -20,7 +20,7 @@ func New(config *config.Config) (storage.Storage, error) {
 	}
 
 	return &Store{
-		notification: notification2.New(db),
+		notification: notify.New(db),
 	}, nil
 }
 

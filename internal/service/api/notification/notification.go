@@ -1,21 +1,20 @@
 package notification
 
 import (
-	msg2 "Notify-storage-service/internal/handler/model/msg"
+	message "Notify-storage-service/internal/handler/model/msg"
 	"Notify-storage-service/internal/model/notification"
 	"context"
 )
 
 type BrokerNotification interface {
-	Add(ctx context.Context, msg msg2.MSG) error
+	Add(ctx context.Context, msg message.MSG) error
 
-	GetOld(ctx context.Context) ([]byte, error)
-
-	GetCurrent(ctx context.Context) ([]byte, error)
+	Send(ctx context.Context, msg []byte) error
 }
 
 type StorageNotification interface {
-	GetCurrent(ctx context.Context, id int) ([]notification.Notification, error)
+	GetCurrent(ctx context.Context, id int) ([]message.Notify, error)
 	GetById(ctx context.Context, id int) (notification.Notification, error)
-	Delete(ctx context.Context, ids []int) error
+	Delete(ctx context.Context, userId int, ids []int) error
+	GetOld(ctx context.Context, userId int) ([]message.Notify, error)
 }

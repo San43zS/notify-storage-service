@@ -14,8 +14,7 @@ type Service interface {
 }
 
 type service struct {
-	dial   *amqp.Channel
-	Config rabbit.Config
+	dial *amqp.Channel
 }
 
 func New() (Service, error) {
@@ -45,13 +44,11 @@ func New() (Service, error) {
 	if err := ConfigureProducer(ch); err != nil {
 		ch.Close()
 		conn.Close()
-
 		return nil, err
 	}
 
 	srv := &service{
-		dial:   ch,
-		Config: newCfg,
+		dial: ch,
 	}
 
 	return srv, nil

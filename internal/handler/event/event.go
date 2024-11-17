@@ -1,6 +1,7 @@
 package event
 
 import (
+	"Notify-storage-service/internal/handler/model/msg/event"
 	"Notify-storage-service/internal/service"
 	"Notify-storage-service/pkg/msghandler"
 )
@@ -26,7 +27,6 @@ func New(srv service.Service) msghandler.MsgHandler {
 }
 
 func (h handler) initHandler() {
-	//h.router.Add(event.AddNotify, h.AddNotify)
-	//h.router.Add(event.GetCurrentNotify, h.GetCurrentNotify)
-	//h.router.Add(event.GetOldNotify, h.GetOldNotify)
+	h.router.Add(event.SendOld, h.SendOld)
+	h.router.Add(event.SendCurrent, h.SendCurrent)
 }

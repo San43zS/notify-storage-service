@@ -8,8 +8,10 @@ import (
 	"Notify-storage-service/internal/storage/db/psql"
 	"context"
 	"fmt"
-	"log"
+	"github.com/op/go-logging"
 )
+
+var log = logging.MustGetLogger("app")
 
 type App struct {
 	server service.Service
@@ -19,11 +21,13 @@ type App struct {
 func New() (*App, error) {
 	storage, err := psql.New(config.NewConfig())
 	if err != nil {
+		log.Criticalf("failed to create psql storage: %v", err)
 		return &App{}, err
 	}
 
 	brkr, err := broker.New()
 	if err != nil {
+		log.Criticalf("failed to create rabbit broker: %v", err)
 		return &App{}, err
 	}
 
@@ -47,6 +51,6 @@ func (a *App) Start(ctx context.Context) error {
 		return fmt.Errorf("server stopped with error: %w\n", err)
 	}
 
-	log.Println("server stopped")
+	log.Infof("app: server stopped")
 	return nil
 }

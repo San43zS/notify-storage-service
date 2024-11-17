@@ -3,8 +3,8 @@ package event
 import "time"
 
 const (
-	AddNotify  string = "add-notify"
-	SendNotify string = "send-notify"
+	SendOld     string = "send-notify"
+	SendCurrent string = "send-current-notify"
 )
 
 const (

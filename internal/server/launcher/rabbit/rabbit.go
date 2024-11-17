@@ -55,7 +55,7 @@ func (s server) serve(ctx context.Context, consumer Consumer) error {
 	log.Infof("starting rabbit consumer: %s", consumer.QueueName)
 	for {
 		if err := ctx.Err(); err != nil {
-			log.Infof("rabbit listener stopped error: %v", err)
+			log.Criticalf("rabbit listener stopped error: %v", err)
 			return fmt.Errorf("rabbit listener stopped error: %v", err)
 		}
 
@@ -68,7 +68,7 @@ func (s server) serve(ctx context.Context, consumer Consumer) error {
 		go func() {
 			err := s.handler.ServeMSG(ctx, m)
 			if err != nil {
-				log.Infof("failed to handle message: %v", err)
+				log.Criticalf("failed to handle message: %v", err)
 				return
 			}
 		}()
