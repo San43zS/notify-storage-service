@@ -2,12 +2,11 @@ package rabbit
 
 import (
 	"Notify-storage-service/internal/broker/rabbit/config"
-	"Notify-storage-service/internal/server/launcher/rabbit"
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func ConfigureConsumer(ch *amqp.Channel, c rabbit.Consumer) error {
+func ConfigureConsumer(ch *amqp.Channel, c config.Consumer) error {
 	qn := c.QueueName
 	rk := c.RoutingKey
 	err := ch.ExchangeDeclare(

@@ -4,7 +4,6 @@ import (
 	"Notify-storage-service/internal/broker/rabbit/config"
 	"Notify-storage-service/internal/broker/rabbit/consumer"
 	"Notify-storage-service/internal/broker/rabbit/producer"
-	"Notify-storage-service/internal/server/launcher/rabbit"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -31,7 +30,7 @@ func New() (Service, error) {
 		conn.Close()
 		return nil, err
 	}
-	newCfg := rabbit.NewCfg()
+	newCfg := config.NewCfg()
 	for _, c := range newCfg.Consumers {
 		if err := ConfigureConsumer(ch, c); err != nil {
 			ch.Close()

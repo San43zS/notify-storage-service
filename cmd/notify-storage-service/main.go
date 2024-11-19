@@ -1,4 +1,4 @@
-package notify_storage_service
+package main
 
 import (
 	"Notify-storage-service/internal/app"

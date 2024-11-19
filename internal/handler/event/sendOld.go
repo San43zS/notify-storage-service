@@ -7,7 +7,6 @@ import (
 )
 
 func (h handler) SendOld(ctx context.Context, msg []byte) error {
-
 	m, err := message.New().Parse(msg)
 	if err != nil {
 		return err

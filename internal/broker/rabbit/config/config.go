@@ -60,3 +60,32 @@ func NewConfig() *Config {
 		Driver: viper.GetString("AMQP.DRIVER"),
 	}
 }
+
+type Consumer struct {
+	QueueName  string
+	RoutingKey string
+}
+
+type Cnfg struct {
+	Consumers []Consumer
+}
+
+func NewCfg() Cnfg {
+	config := Cnfg{}
+
+	consumer := Consumer{
+		QueueName:  HConsumerQueueName,
+		RoutingKey: HConsumerRoutingKey,
+	}
+
+	config.Consumers = append(config.Consumers, consumer)
+
+	consumer = Consumer{
+		QueueName:  UConsumerQueueName,
+		RoutingKey: UConsumerRoutingKey,
+	}
+
+	config.Consumers = append(config.Consumers, consumer)
+
+	return config
+}
